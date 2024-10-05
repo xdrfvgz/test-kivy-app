@@ -42,24 +42,26 @@ jobs:
         mkdir -p $HOME/android-sdk/cmdline-tools/latest
         mv $HOME/android-sdk/cmdline-tools/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
         sudo find / -name "sdkmanager"
-        sudo ln -s $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager /usr/bin
-        alias sdkmanager="sdkmanager --sdk_root=$HOME/android-sdk"
-        yes | sdkmanager --licenses
+        echo "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \$*" > sdkmanager
+        chmod +x sdkmanager; 
+        sudo cp sdkmanager /usr/bin; 
+        sudo sdkmanager
+        yes | sudo sdkmanager --licenses
         yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=$HOME/android-sdk
-        yes | sdkmanager --licenses
-        yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;29.0.2" "platforms;android-29" "extras;android;m2repository" "extras;google;m2repository" "cmdline-tools;latest" "extras;android;aidl" --sdk_root=$HOME/android-sdk
-        yes | sdkmanager --licenses
+        yes | sudo sdkmanager --licenses
+        yes | sudob$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;29.0.2" "platforms;android-29" "extras;android;m2repository" "extras;google;m2repository" "cmdline-tools;latest" "extras;android;aidl" --sdk_root=$HOME/android-sdk
+        yes | sudo sdkmanager --licenses
     - name: Build the APK
       run: |
-        yes | sdkmanager --licenses
-        buildozer init
+        yes | sudo sdkmanager --licenses
+        sudo buildozer init
         sed -i 's/# (str) Title of the application/(str) Title of the application/' buildozer.spec
         sed -i 's/# (str) Package name/(str) Package name/' buildozer.spec
         sed -i 's/# (str) Source code where the main.py live/(str) Source code where the main.py live/' buildozer.spec
         sed -i 's/# (list) Application requirements/(list) Application requirements/' buildozer.spec
         sed -i 's/# (str) Supported orientation/(str) Supported orientation/' buildozer.spec
         sed -i 's/# (list) Permissions/(list) Permissions/' buildozer.spec
-        buildozer -v android debug
+        sudo buildozer -v android debug
 
     - name: Archive APK
       uses: actions/upload-artifact@v3
