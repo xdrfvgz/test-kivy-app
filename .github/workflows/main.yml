@@ -48,8 +48,7 @@ jobs:
         sudo cp sdkmanager /usr/bin; 
         echo ">>===== testing sdkmanager script =====================================<<"
         sudo sdkmanager --licenses < input.txt
-        sudo sdkmanager "platform-tools" "build-tools;29.0.2" "platforms;android-29" "extras;android;m2repository" "extras;google;m2repository" "cmdline-tools;latest" < input.txt
-
+        
     - name: Build the APK
       run: |
         python -m pip install --upgrade pip
