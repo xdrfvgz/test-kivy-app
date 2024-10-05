@@ -42,18 +42,17 @@ jobs:
         mkdir -p $HOME/android-sdk/cmdline-tools/latest
         mv $HOME/android-sdk/cmdline-tools/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
         sudo find / -name "sdkmanager"
-        echo "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \$*" > sdkmanager
+        echo ">>===== creating sdkmanager script =====================================<<"
+        echo "`realpath $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager` --sdk_root=`realpath $HOME/android-sdk` \$*" | tee sdkmanager
         chmod +x sdkmanager; 
         sudo cp sdkmanager /usr/bin; 
+        echo ">>===== testing sdkmanager script =====================================<<"
         sudo sdkmanager
         yes | sudo sdkmanager --licenses
         yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=$HOME/android-sdk
-        yes | sudo sdkmanager --licenses
-        yes | sudob$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;29.0.2" "platforms;android-29" "extras;android;m2repository" "extras;google;m2repository" "cmdline-tools;latest" "extras;android;aidl" --sdk_root=$HOME/android-sdk
-        yes | sudo sdkmanager --licenses
-    - name: Build the APK
+        yes | sudo $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;29.0.2" "platforms;android-29" "extras;android;m2repository" "extras;google;m2repository" "cmdline-tools;latest" "extras;android;aidl" --sdk_root=$HOME/android-sdk
+   - name: Build the APK
       run: |
-        yes | sudo sdkmanager --licenses
         sudo buildozer init
         sed -i 's/# (str) Title of the application/(str) Title of the application/' buildozer.spec
         sed -i 's/# (str) Package name/(str) Package name/' buildozer.spec
