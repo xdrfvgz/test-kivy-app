@@ -39,8 +39,8 @@ jobs:
         wget https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip
         mkdir -p $HOME/android-sdk/cmdline-tools/latest
         unzip commandlinetools-linux-6858069_latest.zip -d $HOME/android-sdk/cmdline-tools/latest
-        echo "y" | $HOME/android-sdk/cmdline-tools/latest/cmdline-tools/bin/sdkmanager --licenses
-        $HOME/android-sdk/cmdline-tools/latest/cmdline-tools/bin/sdkmanager "platform-tools" "build-tools;29.0.2" "platforms;android-29"
+        echo "y" | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=$HOME/android-sdk
+        $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;29.0.2" "platforms;android-29" --sdk_root=$HOME/android-sdk
 
     - name: Build the APK
       run: |
