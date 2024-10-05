@@ -16,4 +16,4 @@ debug = 1
 version = 0.1
 source.main = main.py
 
-android.sdk_path = /usr/lib/android-sdk
+android.sdk_path =  /home/runner/android-sdk
