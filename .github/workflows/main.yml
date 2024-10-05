@@ -54,14 +54,14 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install kivy buildozer cython
-        sudo buildozer init
+        buildozer init
         sed -i 's/# (str) Title of the application/(str) Title of the application/' buildozer.spec
         sed -i 's/# (str) Package name/(str) Package name/' buildozer.spec
         sed -i 's/# (str) Source code where the main.py live/(str) Source code where the main.py live/' buildozer.spec
         sed -i 's/# (list) Application requirements/(list) Application requirements/' buildozer.spec
         sed -i 's/# (str) Supported orientation/(str) Supported orientation/' buildozer.spec
         sed -i 's/# (list) Permissions/(list) Permissions/' buildozer.spec
-        sudo buildozer -v android debug
+        buildozer -v android debug
 
     - name: Archive APK
       uses: actions/upload-artifact@v3
