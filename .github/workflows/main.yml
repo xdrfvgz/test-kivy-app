@@ -35,7 +35,7 @@ jobs:
     - name: Install Android SDK
       run: |
         sudo apt-get update
-        sudo apt-get install -y openjdk-8-jdk buildlibffi-dev libtool libnss3-dev libssl-dev libreadline-dev libffi-dev curl libbz2-dev python3-openssl
+        sudo apt-get install -y openjdk-8-jdk libffi-dev libtool libnss3-dev libssl-dev libreadline-dev libffi-dev curl libbz2-dev python3-openssl build-essential
         wget https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip
         mkdir -p $HOME/android-sdk/cmdline-tools
         unzip commandlinetools-linux-6858069_latest.zip -d $HOME/android-sdk/cmdline-tools
