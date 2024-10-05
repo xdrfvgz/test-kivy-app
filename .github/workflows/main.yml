@@ -52,6 +52,8 @@ jobs:
 
     - name: Build the APK
       run: |
+        python -m pip install --upgrade pip
+        pip install kivy buildozer cython
         sudo buildozer init
         sed -i 's/# (str) Title of the application/(str) Title of the application/' buildozer.spec
         sed -i 's/# (str) Package name/(str) Package name/' buildozer.spec
