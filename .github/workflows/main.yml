@@ -42,7 +42,8 @@ jobs:
         mkdir -p $HOME/android-sdk/cmdline-tools/latest
         mv $HOME/android-sdk/cmdline-tools/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
         sudo find / -name "sdkmanager"
-        alias sdkmanager="$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk"
+        sudo ln -s $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager /usr/bin
+        alias sdkmanager="sdkmanager --sdk_root=$HOME/android-sdk"
         yes | sdkmanager --licenses
         yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=$HOME/android-sdk
         yes | sdkmanager --licenses
