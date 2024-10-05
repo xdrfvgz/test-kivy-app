@@ -35,7 +35,7 @@ jobs:
     - name: Install Android SDK
       run: |
         sudo apt-get update
-        sudo apt-get install -y openjdk-8-jdk
+        sudo apt-get install -y openjdk-8-jdk aidl
         wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
         unzip sdk-tools-linux-4333796.zip -d $HOME/android-sdk
         echo "y" | $HOME/android-sdk/tools/bin/sdkmanager --licenses
