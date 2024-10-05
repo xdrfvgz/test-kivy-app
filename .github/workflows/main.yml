@@ -42,7 +42,7 @@ jobs:
         mkdir -p $HOME/android-sdk/cmdline-tools/latest
         mv $HOME/android-sdk/cmdline-tools/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
         yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=$HOME/android-sdk
-        yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;29.0.2" "platforms;android-29" "extras;android;m2repository" "extras;google;m2repository" "cmdline-tools;latest" "build-tools;35.0.0" "extras;android;aidl" --sdk_root=$HOME/android-sdk
+        yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;29.0.2" "platforms;android-29" "extras;android;m2repository" "extras;google;m2repository" "cmdline-tools;latest" "extras;android;aidl" --sdk_root=$HOME/android-sdk
 
     - name: Build the APK
       run: |
