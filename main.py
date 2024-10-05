@@ -14,7 +14,7 @@ class TestApp(App):
         self.text_input = TextInput(hint_text='Text hier eingeben')
 
         # Erstellen eines Buttons
-        button = Button(text='Klicken Sie mich')
+        button = Button(text='Klicken Sie mich ganz doll')
         button.bind(on_press=self.on_button_press)
 
         # Erstellen eines Labels
