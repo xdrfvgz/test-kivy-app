@@ -44,10 +44,12 @@ jobs:
         echo ">>===== creating sdkmanager script =====================================<<"
         echo "`realpath $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager` --sdk_root=`realpath $HOME/android-sdk` \$*" | tee sdkmanager
         chmod +x sdkmanager; 
+        sudo ln -s $HOME/android-sdk/cmdline-tools/latest  $HOME/android-sdk/tools
         echo -e "y\ny\ny\ny\ny\ny\ny" > input.txt
         sudo cp sdkmanager /usr/bin; 
         echo ">>===== testing sdkmanager script =====================================<<"
         sudo sdkmanager --licenses < input.txt
+
         
     - name: Build the APK
       run: |
