@@ -41,11 +41,14 @@ jobs:
         unzip commandlinetools-linux-6858069_latest.zip -d $HOME/android-sdk/cmdline-tools
         mkdir -p $HOME/android-sdk/cmdline-tools/latest
         mv $HOME/android-sdk/cmdline-tools/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
+        yes | sdkmanager --licenses
         yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=$HOME/android-sdk
+        yes | sdkmanager --licenses
         yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;29.0.2" "platforms;android-29" "extras;android;m2repository" "extras;google;m2repository" "cmdline-tools;latest" "extras;android;aidl" --sdk_root=$HOME/android-sdk
-
+        yes | sdkmanager --licenses
     - name: Build the APK
       run: |
+        yes | sdkmanager --licenses
         buildozer init
         sed -i 's/# (str) Title of the application/(str) Title of the application/' buildozer.spec
         sed -i 's/# (str) Package name/(str) Package name/' buildozer.spec
