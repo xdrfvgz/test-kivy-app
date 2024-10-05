@@ -50,7 +50,12 @@ jobs:
         echo ">>===== testing sdkmanager script =====================================<<"
         sudo sdkmanager --licenses < input.txt
 
-        
+    - name: Install Autoconf and Libtool
+      run: sudo apt-get install autoconf libtool
+
+    - name: Run Autoupdate
+      run: autoupdate
+
     - name: Build the APK
       run: |
         python -m pip install --upgrade pip
