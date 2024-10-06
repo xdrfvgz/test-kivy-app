@@ -82,8 +82,6 @@ jobs:
     - name: Install Android SDK packages
       run: |
         ${{ env.SDK_MANAGER_PATH }} "platform-tools" "platforms;android-29" "build-tools;29.0.3"
-        
-    
     - name: Build APK
       run: |
         buildozer -v android debug
