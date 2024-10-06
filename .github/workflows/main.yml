@@ -58,6 +58,10 @@ jobs:
         NDK_PYTHON_DIR="$ANDROID_HOME/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/share/clang"
         sed -i 's/print \(.*\)/print(\1)/' "$NDK_PYTHON_DIR/clang-format.py"
         sed -i 's/print \(.*\)/print(\1)/' "$NDK_PYTHON_DIR/clang-include-fixer.py"
+        sed -i 's/print >> sys.stderr, \(.*\)/print(\1, file=sys.stderr)/' "$NDK_PYTHON_DIR/clang-include-fixer.py"
+        sed -i 's/except \([A-Za-z]*\),\(.*\):/except \1 as\2:/' "$NDK_PYTHON_DIR/clang-include-fixer.py"
+        sed -i 's/^\([ ]*\)except:/\1except BaseException:/' "$NDK_PYTHON_DIR/clang-include-fixer.py"
+        sed -i "s/basestring/str/" "$NDK_PYTHON_DIR/clang-include-fixer.py"
 
     - name: Install latest Autotools
       run: |
