@@ -32,76 +32,60 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
 
-    - name: Install Android SDK and required packages
+    - name: Install Android SDK
       run: |
         sudo apt-get update
-        sudo apt-get install -y \
-          openjdk-11-jdk \
-          libssl-dev \
-          libffi-dev \
-          libtool \
-          libnss3-dev \
-          curl \
-          build-essential \
-          python3-openssl \
-          python3-pip \
-          python3-setuptools \
-          python3-dev \
-          zip \
-          unzip \
-          libbz2-dev \
-          libreadline-dev \
-          libgdbm-dev \
-          libsqlite3-dev \
-          autoconf \
-          automake \
-          libtool \
-          texinfo
-
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v2
+        sudo apt-get install -y wget unzip
+        wget https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip
+        unzip commandlinetools-linux-8092744_latest.zip -d android-sdk
+        export ANDROID_HOME=$PWD/android-sdk
+        export PATH=$PATH:$ANDROID_HOME/cmdline-tools/bin
+        echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+        echo "$ANDROID_HOME/cmdline-tools/bin" >> $GITHUB_PATH
+        echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
 
     - name: Install Android SDK components
       run: |
-        sdkmanager --install "platforms;android-31" "build-tools;30.0.3" "ndk;21.4.7075529"
         yes | sdkmanager --licenses
+        sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3" "ndk;21.4.7075529"
 
-    - name: Set Android SDK environment variables
+    - name: Set Android NDK environment variable
+      run: echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/21.4.7075529" >> $GITHUB_ENV
+
+    - name: Install buildozer dependencies
       run: |
-        echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
-        echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/21.4.7075529" >> $GITHUB_ENV
-        echo "$ANDROID_SDK_ROOT/tools" >> $GITHUB_PATH
-        echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
+        sudo apt-get install -y \
+          libssl-dev \
+          libffi-dev \
+          libltdl-dev \
+          libbz2-dev \
+          libreadline-dev \
+          libsqlite3-dev \
+          libncurses5-dev \
+          libncursesw5-dev \
+          libgdbm-dev \
+          liblzma-dev \
+          zlib1g-dev \
+          tk-dev \
+          libffi-dev
 
     - name: Start Buildozer build process
       run: |
         buildozer android debug
 
-    - name: Debug Gradle configuration
+    - name: Debug SDK installation
+      if: failure()
       run: |
-        cd .buildozer/android/platform/build-arm64-v8a/dists/myapp
-        echo "Gradle version:"
-        ./gradlew --version
-        echo "Gradle build scan:"
-        ./gradlew buildEnvironment --scan
+        echo "Android SDK root:"
+        ls -la $ANDROID_HOME
+        echo "Android SDK tools:"
+        ls -la $ANDROID_HOME/cmdline-tools/bin
+        echo "SDK Manager version:"
+        sdkmanager --version
+        echo "Installed packages:"
+        sdkmanager --list
 
-    - name: Run Gradle with debug output
-      run: |
-        cd .buildozer/android/platform/build-arm64-v8a/dists/myapp
-        ./gradlew assembleDebug --info --stacktrace
-
-    - name: Check Gradle wrapper properties
-      run: |
-        cd .buildozer/android/platform/build-arm64-v8a/dists/myapp
-        cat gradle/wrapper/gradle-wrapper.properties
-
-    - name: Upload Gradle logs
-      uses: actions/upload-artifact@v3
-      with:
-        name: gradle-logs
-        path: .buildozer/android/platform/build-arm64-v8a/dists/myapp/build/outputs/logs/
-
-    - name: Build APK (if Gradle succeeded)
+    - name: Build APK
       if: success()
       run: |
         buildozer -v android debug
