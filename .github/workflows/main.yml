@@ -88,5 +88,9 @@ jobs:
         ls -la $ANDROID_HOME/build-tools || echo "Build Tools directory not found"
         echo "AIDL location:"
         find $ANDROID_HOME -name aidl || echo "AIDL not found"
-        echo "Buildozer log:"
-        cat .buildozer/logs/buildozer.log
+        echo "Current directory contents:"
+        ls -la
+        echo "Python path:"
+        which python
+        echo "Buildozer path:"
+        which buildozer
