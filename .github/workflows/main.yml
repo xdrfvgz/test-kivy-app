@@ -54,7 +54,7 @@ jobs:
           libgdbm-dev \
           libsqlite3-dev
 
-    # Optional: Install additional Android SDK components if needed
+   # Optional: Install additional Android SDK components if needed
     - name: Download Android SDK
       run: |
         # Set SDK tools version
