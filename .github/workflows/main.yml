@@ -65,18 +65,23 @@ jobs:
         rm commandlinetools.zip
         
         mv $SDK_ROOT/cmdline-tools/cmdline-tools $SDK_ROOT/cmdline-tools/latest
+        
+        # Symbolischen Link in /usr/bin erstellen
+        sudo ln -sf $SDK_ROOT/cmdline-tools/latest/bin/sdkmanager /usr/bin/sdkmanager
 
-        # Symbolischen Link erstellen
-        sudo ln -s $SDK_ROOT/cmdline-tools/latest $SDK_ROOT/tools
+    - name: Find sdkmanager path
+      id: find_sdkmanager
+      run: |
+        SDK_MANAGER_PATH=$(find $HOME/android-sdk/cmdline-tools -name sdkmanager)
+        echo "SDK_MANAGER_PATH=$SDK_MANAGER_PATH" >> $GITHUB_ENV
 
-        # Lizenzdateien automatisch akzeptieren
-        echo -e "y\ny\ny\ny\ny\ny\ny\n" > input.txt
-        $SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses < input.txt
+    - name: Accept SDK licenses
+      run: |
+        echo -e "y\ny\ny\ny\ny\ny\ny\n" | ${{ env.SDK_MANAGER_PATH }} --licenses
 
     - name: Install Android SDK packages
       run: |
-        yes | $SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
-        $SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.3"
+        ${{ env.SDK_MANAGER_PATH }} "platform-tools" "platforms;android-29" "build-tools;29.0.3"
 
     - name: Build APK
       run: |
