@@ -59,7 +59,8 @@ jobs:
       run: |
         # Set SDK tools version
         SDK_TOOLS_VERSION=commandlinetools-linux-7583922_latest.zip
-        SDK_ROOT=$HOME/Android/Sdk
+        #SDK_ROOT=$HOME/Android/Sdk
+        $SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
         mkdir -p $SDK_ROOT
         curl -o commandlinetools.zip https://dl.google.com/android/repository/$SDK_TOOLS_VERSION
         unzip commandlinetools.zip -d $SDK_ROOT/cmdline-tools
