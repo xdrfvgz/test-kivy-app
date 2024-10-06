@@ -89,7 +89,7 @@ jobs:
         echo "Autoupdate in allen Verzeichnissen abgeschlossen."
 
     - name: Upload APK
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: app-debug
         path: bin/*.apk
