@@ -55,7 +55,34 @@ jobs:
           libsqlite3-dev \
           autoconf \
           automake \
-          libtool
+          libtool \
+          texinfo
+
+    - name: Install latest Autotools
+      run: |
+        wget https://ftp.gnu.org/gnu/autoconf/autoconf-2.71.tar.gz
+        tar xzf autoconf-2.71.tar.gz
+        cd autoconf-2.71
+        ./configure --prefix=/usr
+        make
+        sudo make install
+        cd ..
+        
+        wget https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.gz
+        tar xzf automake-1.16.5.tar.gz
+        cd automake-1.16.5
+        ./configure --prefix=/usr
+        make
+        sudo make install
+        cd ..
+        
+        wget https://ftp.gnu.org/gnu/libtool/libtool-2.4.7.tar.gz
+        tar xzf libtool-2.4.7.tar.gz
+        cd libtool-2.4.7
+        ./configure --prefix=/usr
+        make
+        sudo make install
+        cd ..
 
     - name: Download and set up Android SDK Command Line Tools
       run: |
@@ -77,16 +104,14 @@ jobs:
     - name: Install Android SDK packages
       run: sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.3"
 
-    - name: Update Autoconf tools
-      run: |
-        sudo apt-get install -y autoconf automake libtool
-        sudo apt-get install -y autoconf-archive
-        
     - name: Clone and build libffi
       run: |
         git clone https://github.com/libffi/libffi.git
         cd libffi
         ./autogen.sh
+        sed -i 's/AC_TRY_COMPILE/AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]])], [AC_MSG_RESULT(yes)], [AC_MSG_RESULT(no)])/g' configure.ac
+        sed -i 's/LT_SYS_SYMBOL_USCORE/AC_LIBTOOL_SYS_GLOBAL_SYMBOL_PIPE/g' configure.ac
+        autoreconf -fiv
         ./configure
         make
         sudo make install
