@@ -45,18 +45,12 @@ jobs:
         echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
         echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
 
-    - name: Debug SDK installation
+    - name: Accept Android SDK licenses
       run: |
-        echo "Android SDK root:"
-        ls -R $ANDROID_HOME
-        echo "PATH:"
-        echo $PATH
-        echo "which sdkmanager:"
-        which sdkmanager || echo "sdkmanager not found"
+        yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses
 
     - name: Install Android SDK components
       run: |
-        yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses
         sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-30" "build-tools;30.0.3" "ndk;21.4.7075529"
 
     - name: Set Android NDK environment variable
@@ -78,6 +72,27 @@ jobs:
           zlib1g-dev \
           tk-dev \
           libffi-dev
+
+    - name: Debug SDK installation
+      run: |
+        echo "Android SDK root:"
+        ls -R $ANDROID_HOME
+        echo "PATH:"
+        echo $PATH
+        echo "which sdkmanager:"
+        which sdkmanager || echo "sdkmanager not found"
+        echo "Build Tools:"
+        ls -la $ANDROID_HOME/build-tools || echo "Build Tools directory not found"
+        echo "AIDL location:"
+        find $ANDROID_HOME -name aidl || echo "AIDL not found"
+
+    - name: Modify buildozer.spec
+      run: |
+        sed -i 's/^android.sdk =.*/android.sdk = 30/' buildozer.spec
+        sed -i 's/^android.ndk =.*/android.ndk = 21.4.7075529/' buildozer.spec
+        sed -i 's/^android.api =.*/android.api = 30/' buildozer.spec
+        sed -i 's/^android.sdk_path =.*/android.sdk_path = \/home\/runner\/android-sdk/' buildozer.spec
+        sed -i 's/^android.ndk_path =.*/android.ndk_path = \/home\/runner\/android-sdk\/ndk\/21.4.7075529/' buildozer.spec
 
     - name: Start Buildozer build process
       run: |
