@@ -70,7 +70,8 @@ jobs:
         sudo ln -s $SDK_ROOT/cmdline-tools/latest $SDK_ROOT/tools
 
         # Lizenzdateien automatisch akzeptieren
-        yes | $SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
+        echo -e "y\ny\ny\ny\ny\ny\ny\n" > input.txt
+        $SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses < input.txt
 
     - name: Install Android SDK packages
       run: |
