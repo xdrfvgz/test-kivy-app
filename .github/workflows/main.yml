@@ -53,6 +53,46 @@ jobs:
     - name: Set Android NDK environment variable
       run: echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/21.4.7075529" >> $GITHUB_ENV
 
+    - name: Install latest Autotools
+      run: |
+        sudo apt-get install -y autoconf automake libtool
+        wget https://ftp.gnu.org/gnu/autoconf/autoconf-2.71.tar.gz
+        tar xzf autoconf-2.71.tar.gz
+        cd autoconf-2.71
+        ./configure
+        make
+        sudo make install
+        cd ..
+        
+        wget https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.gz
+        tar xzf automake-1.16.5.tar.gz
+        cd automake-1.16.5
+        ./configure
+        make
+        sudo make install
+        cd ..
+        
+        wget https://ftp.gnu.org/gnu/libtool/libtool-2.4.7.tar.gz
+        tar xzf libtool-2.4.7.tar.gz
+        cd libtool-2.4.7
+        ./configure
+        make
+        sudo make install
+        cd ..
+
+    - name: Clone and patch libffi
+      run: |
+        git clone https://github.com/libffi/libffi.git
+        cd libffi
+        sed -i 's/AC_PROG_LD/LT_PATH_LD/g' configure.ac
+        sed -i 's/AC_TRY_RUN/AC_TRY_LINK/g' configure.ac
+        sed -i 's/LT_SYS_SYMBOL_USCORE/AC_LIBTOOL_SYS_GLOBAL_SYMBOL_PIPE/g' configure.ac
+        autoreconf -fiv
+        ./configure
+        make
+        sudo make install
+        cd ..
+
     - name: Modify buildozer.spec
       run: |
         sed -i 's/^android.sdk =.*/android.sdk = 30/' buildozer.spec
@@ -96,3 +136,7 @@ jobs:
         which buildozer
         echo "Java version:"
         java -version
+        echo "Autotools versions:"
+        autoconf --version
+        automake --version
+        libtool --version
