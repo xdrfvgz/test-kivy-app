@@ -54,44 +54,23 @@ jobs:
           libgdbm-dev \
           libsqlite3-dev
 
-   # Optional: Install additional Android SDK components if needed
-    - name: Download Android SDK
+    - name: Download and set up Android SDK Command Line Tools
       run: |
-        # Set SDK tools version
+        SDK_ROOT=$HOME/android-sdk
         SDK_TOOLS_VERSION=commandlinetools-linux-7583922_latest.zip
-        #SDK_ROOT=$HOME/Android/Sdk
-        #$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
-        yes | $SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
-        mkdir -p $SDK_ROOT
+        
+        mkdir -p $SDK_ROOT/cmdline-tools
         curl -o commandlinetools.zip https://dl.google.com/android/repository/$SDK_TOOLS_VERSION
         unzip commandlinetools.zip -d $SDK_ROOT/cmdline-tools
         rm commandlinetools.zip
+        
         mv $SDK_ROOT/cmdline-tools/cmdline-tools $SDK_ROOT/cmdline-tools/latest
-        sudo apt-get update
-        sudo apt-get install -y openjdk-8-jdk libssl-dev libffi-dev libtool libnss3-dev libreadline-dev curl libbz2-dev python3-openssl build-essential
 
-# Download und Installation der Command Line Tools
-        wget https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip
-        mkdir -p $HOME/android-sdk/cmdline-tools
-        unzip commandlinetools-linux-6858069_latest.zip -d $HOME/android-sdk/cmdline-tools
-        mkdir -p $HOME/android-sdk/cmdline-tools/latest
-        mv $HOME/android-sdk/cmdline-tools/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
+        # Symbolischen Link erstellen
+        sudo ln -s $SDK_ROOT/cmdline-tools/latest $SDK_ROOT/tools
 
-# Erstellen des sdkmanager-Skripts
-        echo ">>===== creating sdkmanager script =====================================<<"
-        echo "`realpath $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager` --sdk_root=`realpath $HOME/android-sdk` \$*" | tee sdkmanager
-        chmod +x sdkmanager
-
-# Symbolischen Link erstellen
-        sudo ln -s $HOME/android-sdk/cmdline-tools/latest $HOME/android-sdk/tools
-
-# Lizenzdateien automatisch akzeptieren
-        echo -e "y\ny\ny\ny\ny\ny\ny" > input.txt
-        sudo cp sdkmanager /usr/bin
-
-# Testen des sdkmanager-Skripts
-        echo ">>===== testing sdkmanager script =====================================<<"
-        sudo sdkmanager --licenses < input.txt
+        # Lizenzdateien automatisch akzeptieren
+        yes | $SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
 
     - name: Install Android SDK packages
       run: |
