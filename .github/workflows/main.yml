@@ -66,34 +66,30 @@ jobs:
         
         mv $SDK_ROOT/cmdline-tools/cmdline-tools $SDK_ROOT/cmdline-tools/latest
         
-        # Symbolischen Link in /usr/bin erstellen
-        sudo ln -sf $SDK_ROOT/cmdline-tools/latest/bin/sdkmanager /usr/bin/sdkmanager
-
-    - name: Find sdkmanager path
-      id: find_sdkmanager
-      run: |
-        SDK_MANAGER_PATH=$(find $HOME/android-sdk/cmdline-tools -name sdkmanager)
-        echo "SDK_MANAGER_PATH=$SDK_MANAGER_PATH" >> $GITHUB_ENV
+        echo "$SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
     - name: Accept SDK licenses
-      run: |
-        echo -e "y\ny\ny\ny\ny\ny\ny\n" | ${{ env.SDK_MANAGER_PATH }} --licenses
+      run: yes | sdkmanager --licenses
 
     - name: Install Android SDK packages
-      run: |
-        ${{ env.SDK_MANAGER_PATH }} "platform-tools" "platforms;android-29" "build-tools;29.0.3"
+      run: sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.3"
+
     - name: Build APK
       run: |
         buildozer -v android debug
-        echo -e "\n\n\n>>=================<<\n\n\n"
-        /opt/hostedtoolcache/Python/3.8.18/x64/bin/python -m pythonforandroid.toolchain create --dist_name=myapp --bootstrap=sdl2 --requirements=python3,kivy,libffi --arch=arm64-v8a --copy-libs --color=always --storage-dir=/home/runner/work/test-kivy-app/test-kivy-app/.buildozer/android/platform/build-arm64-v8a --ndk-api=21 --ignore-setup-py --debug
-        echo -e "\n\n\n>>=================<<\n\n\n"
-        #!/bin/bash
 
-       # Verzeichnis festlegen, in dem nach configure.ac gesucht werden soll
-       BASE_DIR=".buildozer"  # Aktuelles Verzeichnis. Ändere dies nach Bedarf.
+    - name: Run Python for Android toolchain
+      run: |
+        python -m pythonforandroid.toolchain create --dist_name=myapp --bootstrap=sdl2 --requirements=python3,kivy,libffi --arch=arm64-v8a --copy-libs --color=always --storage-dir=$GITHUB_WORKSPACE/.buildozer/android/platform/build-arm64-v8a --ndk-api=21 --ignore-setup-py --debug
 
-       # Findet alle Verzeichnisse mit einer configure.ac-Datei und führt autoupdate aus
-       find "$BASE_DIR" -name "configure.ac" -execdir sh -c 'echo "Running autoupdate in $(pwd)"; autoupdate' {} \;
+    - name: Run autoupdate
+      run: |
+        BASE_DIR=".buildozer"
+        find "$BASE_DIR" -name "configure.ac" -execdir sh -c 'echo "Running autoupdate in $(pwd)"; autoupdate' \;
+        echo "Autoupdate in allen Verzeichnissen abgeschlossen."
 
-       echo "Autoupdate in allen Verzeichnissen abgeschlossen."
+    - name: Upload APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: app-debug
+        path: bin/*.apk
