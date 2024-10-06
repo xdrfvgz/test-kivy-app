@@ -86,4 +86,6 @@ jobs:
     - name: Build APK
       run: |
         buildozer -v android debug
+        echo -e "\n\n\n>>=================<<\n\n\n"
         /opt/hostedtoolcache/Python/3.8.18/x64/bin/python -m pythonforandroid.toolchain create --dist_name=myapp --bootstrap=sdl2 --requirements=python3,kivy,libffi --arch=arm64-v8a --copy-libs --color=always --storage-dir=/home/runner/work/test-kivy-app/test-kivy-app/.buildozer/android/platform/build-arm64-v8a --ndk-api=21 --ignore-setup-py --debug
+        echo -e "\n\n\n>>=================<<\n\n\n"
