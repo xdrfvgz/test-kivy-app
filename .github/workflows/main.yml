@@ -104,6 +104,11 @@ jobs:
     - name: Install Android SDK packages
       run: sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.3"
 
+    - name: Initialize Buildozer
+      run: |
+        buildozer init
+        buildozer android debug deploy run
+
     - name: Clone and build libffi
       run: |
         git clone https://github.com/libffi/libffi.git
