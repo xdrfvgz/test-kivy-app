@@ -29,14 +29,14 @@ jobs:
     - name: Set up Java
       uses: actions/setup-java@v3
       with:
-        java-version: '8'
+        java-version: '11'
         distribution: 'adopt'
 
     - name: Install Android SDK and required packages
       run: |
         sudo apt-get update
         sudo apt-get install -y \
-          openjdk-8-jdk \
+          openjdk-11-jdk \
           libssl-dev \
           libffi-dev \
           libtool \
@@ -58,83 +58,56 @@ jobs:
           libtool \
           texinfo
 
-    - name: Install latest Autotools
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
+
+    - name: Install Android SDK components
       run: |
-        wget https://ftp.gnu.org/gnu/autoconf/autoconf-2.71.tar.gz
-        tar xzf autoconf-2.71.tar.gz
-        cd autoconf-2.71
-        ./configure --prefix=/usr
-        make
-        sudo make install
-        cd ..
-        
-        wget https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.gz
-        tar xzf automake-1.16.5.tar.gz
-        cd automake-1.16.5
-        ./configure --prefix=/usr
-        make
-        sudo make install
-        cd ..
-        
-        wget https://ftp.gnu.org/gnu/libtool/libtool-2.4.7.tar.gz
-        tar xzf libtool-2.4.7.tar.gz
-        cd libtool-2.4.7
-        ./configure --prefix=/usr
-        make
-        sudo make install
-        cd ..
+        sdkmanager --install "platforms;android-31" "build-tools;30.0.3" "ndk;21.4.7075529"
+        yes | sdkmanager --licenses
 
-    - name: Download and set up Android SDK Command Line Tools
+    - name: Set Android SDK environment variables
       run: |
-        SDK_ROOT=$HOME/android-sdk
-        SDK_TOOLS_VERSION=commandlinetools-linux-7583922_latest.zip
-        
-        mkdir -p $SDK_ROOT/cmdline-tools
-        curl -o commandlinetools.zip https://dl.google.com/android/repository/$SDK_TOOLS_VERSION
-        unzip commandlinetools.zip -d $SDK_ROOT/cmdline-tools
-        rm commandlinetools.zip
-        
-        mv $SDK_ROOT/cmdline-tools/cmdline-tools $SDK_ROOT/cmdline-tools/latest
-        
-        echo "$SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
-
-    - name: Accept SDK licenses
-      run: yes | sdkmanager --licenses
-
-    - name: Install Android SDK packages
-      run: sdkmanager "platform-tools" "platforms;android-29" "build-tools;29.0.3"
+        echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+        echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/21.4.7075529" >> $GITHUB_ENV
+        echo "$ANDROID_SDK_ROOT/tools" >> $GITHUB_PATH
+        echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
 
     - name: Start Buildozer build process
       run: |
         buildozer android debug
 
-    - name: Clone and build libffi
+    - name: Debug Gradle configuration
       run: |
-        git clone https://github.com/libffi/libffi.git
-        cd libffi
-        ./autogen.sh
-        sed -i 's/AC_TRY_COMPILE/AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]])], [AC_MSG_RESULT(yes)], [AC_MSG_RESULT(no)])/g' configure.ac
-        sed -i 's/LT_SYS_SYMBOL_USCORE/AC_LIBTOOL_SYS_GLOBAL_SYMBOL_PIPE/g' configure.ac
-        autoreconf -fiv
-        ./configure
-        make
-        sudo make install
-        cd ..
+        cd .buildozer/android/platform/build-arm64-v8a/dists/myapp
+        echo "Gradle version:"
+        ./gradlew --version
+        echo "Gradle build scan:"
+        ./gradlew buildEnvironment --scan
 
-    - name: Update libffi in Python for Android
+    - name: Run Gradle with debug output
       run: |
-        LIBFFI_DIR=$(pwd)/libffi
-        sed -i "s|recipe = LibffiRecipe()|recipe = LibffiRecipe()\n        recipe.built_libraries = {'libffi.so': '$LIBFFI_DIR/.libs/libffi.so'}|" $GITHUB_WORKSPACE/.buildozer/android/platform/python-for-android/pythonforandroid/recipes/libffi/__init__.py
+        cd .buildozer/android/platform/build-arm64-v8a/dists/myapp
+        ./gradlew assembleDebug --info --stacktrace
 
-    - name: Build APK
+    - name: Check Gradle wrapper properties
+      run: |
+        cd .buildozer/android/platform/build-arm64-v8a/dists/myapp
+        cat gradle/wrapper/gradle-wrapper.properties
+
+    - name: Upload Gradle logs
+      uses: actions/upload-artifact@v3
+      with:
+        name: gradle-logs
+        path: .buildozer/android/platform/build-arm64-v8a/dists/myapp/build/outputs/logs/
+
+    - name: Build APK (if Gradle succeeded)
+      if: success()
       run: |
         buildozer -v android debug
 
-    - name: Run Python for Android toolchain
-      run: |
-        python -m pythonforandroid.toolchain create --dist_name=myapp --bootstrap=sdl2 --requirements=python3,kivy,libffi --arch=arm64-v8a --copy-libs --color=always --storage-dir=$GITHUB_WORKSPACE/.buildozer/android/platform/build-arm64-v8a --ndk-api=21 --ignore-setup-py --debug
-
     - name: Upload APK
+      if: success()
       uses: actions/upload-artifact@v3
       with:
         name: app-debug
