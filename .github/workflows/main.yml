@@ -45,63 +45,30 @@ jobs:
         echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
         echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
 
-    - name: Accept Android SDK licenses
-      run: |
-        yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses
-
     - name: Install Android SDK components
       run: |
+        yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses
         sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-30" "build-tools;30.0.3" "ndk;21.4.7075529"
 
     - name: Set Android NDK environment variable
       run: echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/21.4.7075529" >> $GITHUB_ENV
-
-    - name: Install buildozer dependencies
-      run: |
-        sudo apt-get install -y \
-          libssl-dev \
-          libffi-dev \
-          libltdl-dev \
-          libbz2-dev \
-          libreadline-dev \
-          libsqlite3-dev \
-          libncurses5-dev \
-          libncursesw5-dev \
-          libgdbm-dev \
-          liblzma-dev \
-          zlib1g-dev \
-          tk-dev \
-          libffi-dev
-
-    - name: Debug SDK installation
-      run: |
-        echo "Android SDK root:"
-        ls -R $ANDROID_HOME
-        echo "PATH:"
-        echo $PATH
-        echo "which sdkmanager:"
-        which sdkmanager || echo "sdkmanager not found"
-        echo "Build Tools:"
-        ls -la $ANDROID_HOME/build-tools || echo "Build Tools directory not found"
-        echo "AIDL location:"
-        find $ANDROID_HOME -name aidl || echo "AIDL not found"
 
     - name: Modify buildozer.spec
       run: |
         sed -i 's/^android.sdk =.*/android.sdk = 30/' buildozer.spec
         sed -i 's/^android.ndk =.*/android.ndk = 21.4.7075529/' buildozer.spec
         sed -i 's/^android.api =.*/android.api = 30/' buildozer.spec
-        sed -i 's/^android.sdk_path =.*/android.sdk_path = \/home\/runner\/android-sdk/' buildozer.spec
-        sed -i 's/^android.ndk_path =.*/android.ndk_path = \/home\/runner\/android-sdk\/ndk\/21.4.7075529/' buildozer.spec
+        sed -i 's|^android.sdk_path =.*|android.sdk_path = '$ANDROID_HOME'|' buildozer.spec
+        sed -i 's|^android.ndk_path =.*|android.ndk_path = '$ANDROID_NDK_HOME'|' buildozer.spec
+        sed -i 's/^android.accept_sdk_license =.*/android.accept_sdk_license = True/' buildozer.spec
+        sed -i 's/^android.build_tools =.*/android.build_tools = 30.0.3/' buildozer.spec
+
+    - name: Debug buildozer.spec
+      run: cat buildozer.spec
 
     - name: Start Buildozer build process
       run: |
         buildozer android debug
-
-    - name: Build APK
-      if: success()
-      run: |
-        buildozer -v android debug
 
     - name: Upload APK
       if: success()
@@ -109,3 +76,17 @@ jobs:
       with:
         name: app-debug
         path: bin/*.apk
+
+    - name: Debug on failure
+      if: failure()
+      run: |
+        echo "Android SDK root:"
+        ls -R $ANDROID_HOME
+        echo "ANDROID_HOME: $ANDROID_HOME"
+        echo "ANDROID_NDK_HOME: $ANDROID_NDK_HOME"
+        echo "Build Tools:"
+        ls -la $ANDROID_HOME/build-tools || echo "Build Tools directory not found"
+        echo "AIDL location:"
+        find $ANDROID_HOME -name aidl || echo "AIDL not found"
+        echo "Buildozer log:"
+        cat .buildozer/logs/buildozer.log
