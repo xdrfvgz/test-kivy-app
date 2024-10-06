@@ -53,6 +53,12 @@ jobs:
     - name: Set Android NDK environment variable
       run: echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/21.4.7075529" >> $GITHUB_ENV
 
+    - name: Patch NDK Python files
+      run: |
+        NDK_PYTHON_DIR="$ANDROID_HOME/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/share/clang"
+        sed -i 's/print \(.*\)/print(\1)/' "$NDK_PYTHON_DIR/clang-format.py"
+        sed -i 's/print \(.*\)/print(\1)/' "$NDK_PYTHON_DIR/clang-include-fixer.py"
+
     - name: Install latest Autotools
       run: |
         sudo apt-get install -y autoconf automake libtool
@@ -140,3 +146,6 @@ jobs:
         autoconf --version
         automake --version
         libtool --version
+        echo "NDK Python files content:"
+        cat "$ANDROID_HOME/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/share/clang/clang-format.py"
+        cat "$ANDROID_HOME/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/share/clang/clang-include-fixer.py"
